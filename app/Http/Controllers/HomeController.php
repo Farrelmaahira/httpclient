@@ -45,15 +45,14 @@ class HomeController extends Controller
                 'description' => $request->description,
                 'released' => $request->released,
             ]);
-            $result = $response->json();
         }
-        return redirect()->route('home');
+        return back()->with('message', 'New data has been added');
     }
 
     public function delete($id)
     {
-        $data = Http::delete('http://127.0.0.1:8003/api/v1/book/' . $id)->collect();
-        return redirect()->route('home');
+        $response = Http::delete('http://127.0.0.1:8003/api/v1/book/' . $id)->collect();
+        return back()->with('message', 'data has been delete');
     }
 
     public function edit($id)
@@ -66,36 +65,34 @@ class HomeController extends Controller
 
     public function update(Request $request, $id)
     {
-        // $this->validate($request, [
-        //     'title' => ['required'],
-        //     'author' => ['required'],
-        //     'description' => ['required'],
-        //     'released' => ['required'],
-        //     'image' => 'image'
-        // ]);
-
-        if ($request->hasFile('image')) {
+       if(!$request->hasFile('image'))
+       {
+            $response = Http::acceptJson()->put('http://127.0.0.1:8003/api/v1/book/' . $id, [
+                'title' => $request->title,
+                'author' => $request->author,
+                'description' => $request->description,
+                'released' => $request->released
+            ]);
+       } elseif ($request->hasFile('image')) {
             $image = $request->file('image');
             $imageName = $image->getClientOriginalName();
-            $response = Http::attach('image', file_get_contents($image), $imageName)->put('http://127.0.0.1:8003/api/v1/book/' . $id, [
+            $response = Http::acceptJson()->attach('image', file_get_contents($image), $imageName)->post('http://127.0.0.1:8003/api/v1/book/'.$id, [
                 'title' => $request->title,
                 'author' => $request->author,
                 'description' => $request->description,
                 'released' => $request->released,
+                '_method' => 'PUT'
             ]);
-            $result = $response->json();
-        } else {
-            $response = Http::put('http://127.0.0.1:8003/api/v1/book/' . $id, [
-                'title' => $request->title,
-                'author' => $request->author,
-                'description' => $request->description,
-                'released' => $request->released,
-            ]);
-            $result = $response->json();
-
-
-            dd($result);
-            return redirect()->route('home');
+       }
+        if ($response->clientError()) {
+         
+            return back()->with('message', $response->json()['message']);
         }
+        if ($response->serverError()) {
+            return back()->with('message', 'server error');
+        }
+        return redirect()->route('home');
     }
 }
+
+//->attach('image', file_get_contents($image), $imageName)

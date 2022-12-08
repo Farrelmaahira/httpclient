@@ -4,6 +4,11 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-8">
+                @if (\Session::has('message'))
+                    <div class="alert alert-danger">
+                        {!! \Session::get('message') !!}
+                    </div>
+                @endif
                 <!-- Button trigger modal -->
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
                     Input

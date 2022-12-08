@@ -2,6 +2,11 @@
 
 @section('content')
     <div class="container">
+        @if (\Session::has('message'))
+            <div class="alert alert-danger">
+                {!! \Session::get('message') !!}
+            </div>
+        @endif
         <a href=" {{ route('home') }} ">Back</a>
         <form action=" {{ route('update', $res['id']) }} " method="post" enctype="multipart/form-data">
             @csrf
@@ -22,7 +27,7 @@
             </div>
             <div class="mb-3">
                 <label for="exampleFormControlTextarea1" class="form-label">Released</label>
-                <input type="date" class="form-control" name="released" id="released">
+                <input type="date" class="form-control" name="released" id="released" value="{{ $res['released'] }}">
             </div>
             <div class="mb-3">
                 <label for="exampleFormControlTextarea1" class="form-label">Image</label>
